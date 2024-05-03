@@ -1,8 +1,33 @@
 from os import environ
 from pathlib import Path
 
+# Logging
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "null": {
+            "class": "logging.NullHandler",
+        },
+    },
+    "loggers": {
+        "django.server": {
+            "handlers": ["null"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["null"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent  # <- /src
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent  # /src
 
 # Application definition
 
@@ -23,6 +48,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Local
+    "src.config.logs.LoggingMiddleware",
 ]
 
 ROOT_URLCONF = "src.config.urls"
