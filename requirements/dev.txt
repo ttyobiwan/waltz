@@ -1,0 +1,4 @@
+-r base.txt
+
+pre-commit==3.7.0
+pytest==8.2.0
