@@ -2,7 +2,7 @@
 
 set -exo pipefail
 
-# python src/manage.py migrate --noinput
+python src/manage.py migrate --noinput
 python src/manage.py collectstatic --noinput
 
 if [[ -z ${DEVELOPMENT} ]]; then

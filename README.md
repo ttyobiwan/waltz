@@ -75,15 +75,15 @@ Add '.nginx.conf' file:
 
 ```
 events {
-    worker_connections 1024;
+	worker_connections 1024;
 }
 
 http {
-    types {
-        text/css    css;
+	types {
+		text/css    css;
 		text/html   html;
 		application/javascript   js;
-    }
+	}
 
 	upstream waltz {
 		server django:8000;
@@ -94,16 +94,16 @@ http {
 
 		location / {
 			proxy_pass http://waltz;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+			proxy_set_header Host $host;
+			proxy_set_header X-Real-IP $remote_addr;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header X-Forwarded-Proto $scheme;
 			proxy_redirect off;
 		}
 
-        location /static/ {
-            alias /code/src/.static/;
-        }
+		location /static/ {
+			alias /code/src/.static/;
+		}
 	}
 }
 ```
