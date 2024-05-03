@@ -1,2 +1,3 @@
 Django==5.0.4
 psycopg[binary]==3.1.18
+structlog==24.1.0

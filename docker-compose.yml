@@ -4,8 +4,6 @@ x-default-app:
   &default-app
     build:
       dockerfile: ./Dockerfile
-      # If you want to try the prod build, you need to set the user to root,
-      # because docker-compose volume will override the permissions of the app folder
       target: dev
     depends_on:
       postgres:
@@ -18,7 +16,7 @@ x-default-app:
     tty: true
 
 services:
-  server:
+  django:
     <<: *default-app
     ports:
       - 8000:8000

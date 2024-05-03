@@ -17,8 +17,8 @@ build: ## Build docker images
 	docker compose build
 
 .PHONY: enter
-enter: ## Enter server container
-	docker compose exec server sh
+enter: ## Enter django container
+	docker compose exec django sh
 
 .PHONY: lint
 lint: ## Run pre-commit checks
