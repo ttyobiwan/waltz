@@ -17,7 +17,7 @@ docs_urlpatterns = [
 ]
 
 v1_urlpatterns = [
-    path("topics/", include("apps.topics.urls", namespace="topics")),
+    path("topics/", include("src.apps.topics.urls", namespace="topics")),
 ]
 
 api_urlpatterns = [
