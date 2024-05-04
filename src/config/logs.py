@@ -6,7 +6,7 @@ import structlog
 from django.http import HttpRequest, HttpResponse
 from structlog.types import EventDict
 
-access_logger = structlog.stdlib.get_logger("hahahandler")
+access_logger = structlog.stdlib.get_logger("api_logger")
 
 
 def rename_event_key(_, __, event_dict: EventDict) -> EventDict:

@@ -15,7 +15,7 @@ uv venv
 Install all dependencies:
 
 ```bash
-uv sync pip install -r requirements/dev.txt
+uv pip install -r requirements/dev.txt
 ```
 
 Setup .env file:
@@ -127,6 +127,9 @@ for the app on 'localhost:8080'.
 
 ## Batteries
 
+- Users + JWT
+- Swagger
 - Logging
-- Celery
+- Celery + Beat
 - Redis cache
+- RabbitMQ broker
