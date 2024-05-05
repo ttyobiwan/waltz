@@ -57,5 +57,10 @@ services:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
 
+  redis:
+    image: "redis:6.2-alpine"
+    ports:
+      - 6379:6379
+
 volumes:
   postgres_data:

@@ -28,6 +28,9 @@ POSTGRES_DB=waltz
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_HOST=postgres
+# Celery
+CELERY_BROKER_URL=amqp://rabbit:rabbit@rabbitmq:5672
+CELERY_RESULT_BACKEND=redis://redis:6379
 ```
 
 Build Docker images:
