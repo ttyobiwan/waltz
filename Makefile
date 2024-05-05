@@ -8,6 +8,10 @@ MAKEFLAGS += --no-builtin-rules
 help: ## Display this help section
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z\$$/]+.*:.*?##\s/ {printf "\033[36m%-38s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
+.PHONY: install
+install: ## Install depenedencies
+	uv pip install -r requirements/dev.txt
+
 .PHONY: up
 up: ## Start docker containers
 	docker compose up

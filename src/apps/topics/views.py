@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 
-from src.apps.topics import models, serializers
+from src.apps.topics import models, serializers, tasks
 
 
 class TopicViewSet(viewsets.ModelViewSet):
@@ -15,6 +15,11 @@ class MessageViewSet(viewsets.ModelViewSet):
 
     queryset = models.Message.objects.all()
     serializer_class = serializers.MessageSerializer
+
+    def perform_create(self, serializer: serializers.MessageSerializer) -> None:
+        """Create message and schedule notifications."""
+        super().perform_create(serializer)
+        tasks.post_message.delay(serializer.data["uuid"])
 
 
 class SubViewSet(viewsets.ModelViewSet):

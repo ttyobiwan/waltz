@@ -5,13 +5,10 @@ x-default-app:
     build:
       dockerfile: ./Dockerfile
       target: dev
-    depends_on:
-      postgres:
-        condition: service_healthy
     env_file:
       - .env
     volumes:
-      - .:/code
+      - ./src:/code/src
     stdin_open: true
     tty: true
 
@@ -20,6 +17,16 @@ services:
     <<: *default-app
     ports:
       - 8000:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  celery:
+    <<: *default-app
+    command: celery -A src.config.celery worker -l info
+    depends_on:
+      - django
+      - rabbitmq
 
   postgres:
     image: "postgres:16-alpine"
@@ -37,6 +44,23 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbit
+      - RABBITMQ_DEFAULT_PASS=rabbit
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+
+  redis:
+    image: "redis:6.2-alpine"
+    ports:
+      - 6379:6379
 
 volumes:
   postgres_data:
