@@ -30,9 +30,10 @@ class Command(BaseCommand):
 
     def handle(self, *_, **options):
         """Generate subs."""
-        owner = options["owner"] or str(random.randint(1, 10000))  # noqa
-        name = options["name"] or str(random.randint(1, 10000))  # noqa
+        owner = options["owner"] or str(random.randint(1, 10000))  # noqa:S311
+        name = options["name"] or str(random.randint(1, 10000))  # noqa:S311
         sub_no = options["subs"] or 100
+        logger.info("Creating hot topic", owner=owner, name=name, subs=sub_no)
 
         topic, _ = models.Topic.objects.get_or_create(owner=owner, name=name)
 
@@ -40,11 +41,13 @@ class Command(BaseCommand):
             models.Subscription(
                 topic=topic,
                 contact_type=list(types.ContactType)[
-                    random.randint(0, len(types.ContactType) - 1)  # noqa
+                    random.randint(0, len(types.ContactType) - 1)  # noqa:S311
                 ].value,
-                contact_data=str(random.randint(1, 10000)),  # noqa
+                contact_data=str(random.randint(1, 10000)),  # noqa:S311
                 confirmed=True,
             )
             for _ in range(sub_no)
         ]
         models.Subscription.objects.bulk_create(subs)
+
+        logger.info("Bulk creation completed")

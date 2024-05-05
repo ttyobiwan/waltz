@@ -19,7 +19,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer: serializers.MessageSerializer) -> None:
         """Create message and schedule notifications."""
         super().perform_create(serializer)
-        tasks.post_message.delay(serializer.data["uuid"])  # type:ignore
+        tasks.post_message.delay(serializer.data["uuid"])
 
 
 class SubViewSet(viewsets.ModelViewSet):
