@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import (
@@ -26,6 +27,7 @@ api_urlpatterns = [
 ]
 
 urlpatterns = [
+    path("__debug__/", include("debug_toolbar.urls")),
     path("waltz/admin/", admin.site.urls),
     path(
         "waltz/api/",

@@ -99,10 +99,7 @@ class LoggingMiddleware:
         structlog.contextvars.clear_contextvars()
 
         start_time = time.perf_counter_ns()
-
-        # TODO: Add try here
         response = self.get_response(request)
-
         process_time = time.perf_counter_ns() - start_time
 
         status_code = response.status_code

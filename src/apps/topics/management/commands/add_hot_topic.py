@@ -32,7 +32,7 @@ class Command(BaseCommand):
         """Generate subs."""
         owner = options["owner"] or str(random.randint(1, 10000))  # noqa:S311
         name = options["name"] or str(random.randint(1, 10000))  # noqa:S311
-        sub_no = options["subs"] or 100
+        sub_no = int(options["subs"]) or 100
         logger.info("Creating hot topic", owner=owner, name=name, subs=sub_no)
 
         topic, _ = models.Topic.objects.get_or_create(owner=owner, name=name)

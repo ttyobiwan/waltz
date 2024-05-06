@@ -6,6 +6,7 @@ class ContactType(enum.Enum):
 
     EMAIL = "Email"
     DISCORD = "Discord"
+    TELEGRAM = "Telegram"
 
     @classmethod
     def choices(cls) -> dict:
