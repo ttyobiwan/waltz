@@ -18,6 +18,8 @@ class Topic(models.Model):
     owner = models.CharField(max_length=127)
     name = models.CharField(max_length=127)
 
+    subs: models.Manager["Subscription"]
+
     def __str__(self) -> str:
         return f"{self.name} by {self.owner}"
 
