@@ -1,82 +1,97 @@
+import enum
 import time
 
 import structlog
 from celery import shared_task
+from django.db.models import Count
 
 from src.apps.topics import models
 
 logger = structlog.get_logger(__name__)
 
-# TODO: Add types
-# TODO: Add some more fancy return types
 # TODO: Add losers queue
 # TODO: Add retry mechanism
 # TODO: Add beat
 
 
+class DispatchStrategy(str, enum.Enum):
+    """Notification dispatch strategy."""
+
+    ALL = "all"
+    BATCH = "batch"
+    CD = "countdown"
+
+
 @shared_task
-def post_message(msg_id: str, strat: str = "all") -> int:
+def post_message(msg_id: str, strat: DispatchStrategy = DispatchStrategy.ALL) -> int:
     """Notify subs about the topic message."""
     logger.info("Message posted", id=msg_id, strategy=strat)
 
-    if strat == "all":
-        # Dispatch one-by-one, all at once
-        msg = models.Message.objects.filter(uuid=msg_id).select_related("topic").first()
-        if msg is None:
-            logger.error("Message does not exist", id=msg_id)
-            return 0
-
-        send_all_notifications.delay(msg.topic.uuid)
-
-        return 0
-
-    if strat == "batch":
-        # Dispatch batch-by-batch
-        msg = (
-            models.Message.objects.filter(uuid=msg_id)
-            .select_related("topic")
-            .prefetch_related("topic__subs")
-            .first()
-        )
-        if msg is None:
-            logger.error("Message does not exist", id=msg_id)
-            return 0
-
-        subs = msg.topic.subs
-
-        batch_size = 10
-        for start in range(0, subs.count(), batch_size):
-            send_batch_notifications.delay(
-                [
-                    (sub.contact_type, sub.contact_data)
-                    for sub in subs.all()[start : start + batch_size]
-                ]
+    match strat:
+        case DispatchStrategy.ALL:
+            # Dispatch one-by-one, all at once
+            msg = (
+                models.Message.objects.filter(uuid=msg_id)
+                .select_related("topic")
+                .annotate(subs_count=Count("topic__subs"))
+                .first()
             )
+            if msg is None:
+                logger.error("Message does not exist", id=msg_id)
+                return 0
+            send_all_notifications.delay(msg.topic.uuid)
+            return msg.subs_count
 
-        return 0
-
-    if strat == "countdown":
-        # Dispatch one-by-one, with a time delay
-        msg = (
-            models.Message.objects.filter(uuid=msg_id)
-            .select_related("topic")
-            .prefetch_related("topic__subs")
-            .first()
-        )
-        if msg is None:
-            logger.error("Message does not exist", id=msg_id)
-            return 0
-
-        subs = msg.topic.subs
-        for i, sub in enumerate(msg.topic.subs.all()):
-            send_sub_notification.apply_async(
-                args=(sub.contact_type, sub.contact_data),
-                countdown=i / 10,
+        case DispatchStrategy.BATCH:
+            # Dispatch batch-by-batch
+            msg = (
+                models.Message.objects.filter(uuid=msg_id)
+                .select_related("topic")
+                .prefetch_related("topic__subs")
+                .first()
             )
+            if msg is None:
+                logger.error("Message does not exist", id=msg_id)
+                return 0
 
-        return 0
+            subs = msg.topic.subs
 
-    return 0
+            batch_size = 10
+            for start in range(0, subs.count(), batch_size):
+                send_batch_notifications.delay(
+                    [
+                        (sub.contact_type, sub.contact_data)
+                        for sub in subs.all()[start : start + batch_size]
+                    ]
+                )
+
+            return subs.count()
+
+        case DispatchStrategy.CD:
+            # Dispatch one-by-one, with a time delay for each
+            msg = (
+                models.Message.objects.filter(uuid=msg_id)
+                .select_related("topic")
+                .prefetch_related("topic__subs")
+                .first()
+            )
+            if msg is None:
+                logger.error("Message does not exist", id=msg_id)
+                return 0
+
+            subs = msg.topic.subs
+
+            for i, sub in enumerate(msg.topic.subs.all()):
+                send_sub_notification.apply_async(
+                    args=(sub.contact_type, sub.contact_data),
+                    countdown=i / 10,
+                )
+
+            return subs.count()
+
+        case _:
+            logger.error("Invalid dispatch strategy", strategy=strat)
+            return 0
 
 
 @shared_task
