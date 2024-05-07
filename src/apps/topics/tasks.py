@@ -10,8 +10,8 @@ from src.apps.topics import models
 logger = structlog.get_logger(__name__)
 
 # TODO: Add losers queue
-# TODO: Add retry mechanism
 # TODO: Add beat
+# TODO: Add tests
 
 
 class DispatchStrategy(str, enum.Enum):
@@ -116,7 +116,7 @@ def send_batch_notifications(subs: list[tuple[str, str]]) -> int:
     return len(subs)
 
 
-@shared_task
+@shared_task(autoretry_for=(Exception,), max_retries=5, retry_backoff=True)
 def send_sub_notification(contact_type: str, contact_data: str) -> int:
     """Send a single notification."""
     logger.info("Sending sub notification", type=contact_type, data=contact_data)
