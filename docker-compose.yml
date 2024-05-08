@@ -8,7 +8,7 @@ x-default-app:
     env_file:
       - .env
     volumes:
-      - ./src:/code/src
+      - .:/code
     stdin_open: true
     tty: true
 
