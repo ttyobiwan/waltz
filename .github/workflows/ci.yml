@@ -10,6 +10,12 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-22.04
+    env:
+      DJANGO_SETTINGS_MODULE: src.config.settings.dev
+      POSTGRES_DB: waltz
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: localhost 
     services:
       postgres:
         image: postgres
