@@ -11,6 +11,7 @@ jobs:
   ci:
     runs-on: ubuntu-22.04
     env:
+      PYTHONPATH: ${{ github.workspace }}
       DJANGO_SETTINGS_MODULE: src.config.settings.dev
       POSTGRES_DB: waltz
       POSTGRES_USER: postgres
