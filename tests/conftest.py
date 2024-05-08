@@ -1,4 +1,3 @@
-from typing import Any
 import pytest
 from rest_framework.test import APIClient
 
@@ -10,6 +9,7 @@ def http_client() -> APIClient:
 
 
 @pytest.fixture(autouse=True)
-def django_settings[T: Any](settings: T) -> T:  # Couldn't stop myself
+def django_settings(settings):
+    """Return overwritten Django settings."""
     settings.CELERY_TASK_ALWAYS_EAGER = True
     return settings
