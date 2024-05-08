@@ -1,17 +1,36 @@
 import enum
+import random
 import time
 
 import structlog
-from celery import shared_task
+from celery import Task, shared_task
 from django.db.models import Count
 
 from src.apps.topics import models
 
 logger = structlog.get_logger(__name__)
 
-# TODO: Add losers queue
 # TODO: Add beat
 # TODO: Add tests
+# TODO: Add cache
+
+
+def move_to_losers_queue(
+    self: Task,
+    exc: Exception,
+    task_id: str,
+    args: tuple,
+    kwargs: dict,
+    einfo: str,
+):
+    """Send task to the losers queue with extra countdown."""
+    del exc, task_id, einfo
+    logger.info("Sending to losers queue", args=args, kwargs=kwargs)
+    if kwargs.get("countdown") is None:
+        kwargs["countdown"] = 10
+    else:
+        kwargs["countdown"] += kwargs["countdown"]
+    self.apply_async(args, kwargs, queue="losers", countdown=kwargs["countdown"])
 
 
 class DispatchStrategy(str, enum.Enum):
@@ -116,10 +135,20 @@ def send_batch_notifications(subs: list[tuple[str, str]]) -> int:
     return len(subs)
 
 
-@shared_task(autoretry_for=(Exception,), max_retries=5, retry_backoff=True)
-def send_sub_notification(contact_type: str, contact_data: str) -> int:
+@shared_task(
+    autoretry_for=(Exception,),
+    max_retries=1,
+    retry_backoff=True,
+    on_failure=move_to_losers_queue,
+)
+def send_sub_notification(contact_type: str, contact_data: str, **kwargs) -> int:
     """Send a single notification."""
-    logger.info("Sending sub notification", type=contact_type, data=contact_data)
+    logger.info("Sending sub notification", type=contact_type, data=contact_data, kwargs=kwargs)
+
+    fail = random.randint(0, 1)  # noqa:S311
+    if fail:
+        raise ConnectionError("Task got unlucky")
+
     time.sleep(0.1)
     logger.info("Notification sent successfully", type=contact_type, data=contact_data)
     return 1
