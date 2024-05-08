@@ -27,4 +27,4 @@ class SubSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Subscription
         fields = ("uuid", "created_at", "topic", "contact_type", "contact_data", "confirmed")
-        read_only_fields = ("uuid", "created_at")
+        read_only_fields = ("uuid", "created_at", "confirmed")

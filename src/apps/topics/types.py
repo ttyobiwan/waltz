@@ -1,7 +1,7 @@
 import enum
 
 
-class ContactType(enum.Enum):
+class ContactType(str, enum.Enum):
     """Subscription contact type."""
 
     EMAIL = "Email"
@@ -11,4 +11,4 @@ class ContactType(enum.Enum):
     @classmethod
     def choices(cls) -> dict:
         """Return types as dict."""
-        return {member.name: member.value for member in cls}
+        return {member.value: member.value for member in cls}
