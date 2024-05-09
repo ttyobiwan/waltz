@@ -10,6 +10,13 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-22.04
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+      DJANGO_SETTINGS_MODULE: src.config.settings.dev
+      POSTGRES_DB: waltz
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: localhost
     services:
       postgres:
         image: postgres
@@ -46,3 +53,6 @@ jobs:
 
       - name: Run pre-commit hooks
         run: make lint
+
+      - name: Run tests
+        run: pytest

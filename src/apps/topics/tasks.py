@@ -11,7 +11,6 @@ from src.apps.topics import models
 logger = structlog.get_logger(__name__)
 
 # TODO: Add beat
-# TODO: Add tests
 # TODO: Add cache
 
 
